@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_API_KEY')
@@ -11,27 +12,46 @@ from discord.ext import commands
 
 # Создаём объект Intents для получения намерений бота
 intents = discord.Intents.default()
-intents.messages = True
+intents.message_content = True
 
 # Создаём объект бота
-client = commands.Bot(command_prefix='!', intents=intents)
+client = commands.Bot(command_prefix='/', intents=intents)
 
+
+@client.event
 @client.event
 async def on_ready():
-    print(f'Bot has logged in as {client.user}')
-
-@client.event
-async def on_message(message):
-    # Не отвечать на сообщения от самого бота
-    if message.author == client.user:
-        return
-
-    # Эхо-ответ: повторяем сообщение пользователя
-    await message.channel.send("Hello")
+    print(f'Logged in as {client.user.name}')
 
 
-@client.command()
-async def ping(ctx):
-    await ctx.send('Pong!')
+@client.command(name='gpt')
+async def echo(ctx, *, arg):
+
+    client = OpenAI(
+  organization=os.getenv("Personal"),
+)
+
+
+    message = arg
+    stream = client.chat.completions.create(
+    model="gpt-3.5-turbo-0125",
+    messages=[{"role": "user", "content": message}], # Serega LOX
+    stream=True,
+)   
+    data = ''
+    for chunk in stream:
+        if chunk.choices[0].delta.content is not None:
+            
+            data = data + (chunk.choices[0].delta.content)
+            print(data)
+    if data:
+            await ctx.send(data)
+    else:
+            await ctx.send('error')
+
+
+
+
+
 # Запустить бота с вашим токеном
 client.run(TOKEN)
