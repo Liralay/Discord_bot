@@ -50,7 +50,12 @@ async def serega(ctx):
 
 @client.command(name = 'gpt')
 async def gpt(ctx, *, arg):
+    await get_chat_gpt_responce(ctx=ctx, arg=arg)
+
+         
     
+
+async def get_chat_gpt_responce(ctx, arg):
     if serega_alive == True or ctx.author.id != serega_id:
         message = arg
         stream = client_chat_gpt.chat.completions.create(
