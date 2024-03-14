@@ -14,13 +14,13 @@ intents = discord.Intents.default()
 intents.messages = True
 
 # Создаём объект бота
-bot = commands.Bot(command_prefix='!', intents=intents)
+client = commands.Bot(command_prefix='!', intents=intents)
 
-@bot.event
+@client.event
 async def on_ready():
     print(f'Bot has logged in as {bot.user}')
 
-@bot.event
+@client.event
 async def on_message(message):
     # Не отвечать на сообщения от самого бота
     if message.author == bot.user:
@@ -29,5 +29,9 @@ async def on_message(message):
     # Эхо-ответ: повторяем сообщение пользователя
     await message.channel.send("Hello")
 
+
+@client.command()
+async def ping(ctx):
+    await ctx.send('Pong!')
 # Запустить бота с вашим токеном
-bot.run(TOKEN)
+client.run(TOKEN)
