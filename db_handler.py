@@ -32,27 +32,28 @@ def func(user_id):
     logger.info('Connected to DB')
     with connection.cursor() as cursor:
         logger.info('Executing SQL Q')
-        cursor.execute('SELECT `usage` FROM `usage` WHERE ID=%s', (user_id,))
+        cursor.execute('SELECT `uses` FROM `gptusage` WHERE ID=%s', (user_id,))
         data = cursor.fetchone()
         logger.info('got data. Writing it to data')
 
 
         if data is None:
             logger.info('Empty data')
-            cursor.execute('INSERT INTO `usage` (ID, `usage`) VALUES (%s, %s)', (user_id, 0))
+            cursor.execute('INSERT INTO `gptusage` (ID, `uses`) VALUES (%s, %s)', (user_id, 0))
             connection.commit()
             logger.info(f'Новый пользователь с ID {user_id} создан.')
-            cursor.execute('SELECT `usage` FROM `usage` WHERE ID=%s', (user_id,))
+            cursor.execute('SELECT `uses` FROM `gptusage` WHERE ID=%s', (user_id,))
             data = cursor.fetchone()
             logger.info('got data. Writing it to data')
-            
-        usage = data['usage']
+
+        usage = data['uses']
         print(usage)
         if usage > 10:
             raise ValueError(f'Пользователь с ID {user_id} превысил лимит использования.')
         else:
             usage = usage + 1
-            cursor.execute('UPDATE `usage` SET `usage` = %s WHERE id=%s;', (usage, user_id))
+            print('should make', usage)
+            cursor.execute('UPDATE `gptusage` SET `uses` = %s WHERE id=%s;', (usage, user_id))
         connection.commit()
         #     # Если usage больше 10, выдаем ошибку
         #     raise ValueError(f'Пользователь с ID {user_id} превысил лимит использования.')

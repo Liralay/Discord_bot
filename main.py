@@ -23,9 +23,6 @@ async def load():
         if filename.endswith('.py'):
             await client.load_extension(f'cogs.{filename[:-3]}')
 
-
-
-
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user.name}')
