@@ -2,6 +2,7 @@ from discord.ext import commands
 from cogs.serega import serega_alive, serega_id
 import os
 import logging
+import db_handler
 logger = logging.getLogger(__name__)
 
 
@@ -12,12 +13,14 @@ client_chat_gpt = OpenAI(
   organization = os.getenv("Personal"),
 )
 
+
 class asking(commands.Cog):
     def __init__(self, client):
         self.client = client
 
     @commands.command()
     async def gpt(self, ctx, arg):
+        db_handler.func(user_id=int(ctx.author.id))
         try:
             if serega_alive == True or ctx.author.id != serega_id:
                 logger.info('passed conditions')
@@ -47,7 +50,6 @@ class asking(commands.Cog):
         
 
 
-    
 
 
 async def setup(client):
