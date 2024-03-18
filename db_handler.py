@@ -1,9 +1,10 @@
 import pymysql
 from mysql.connector import Error
-from functools import wraps
 
 import logging
 logger = logging.getLogger(__name__)
+
+
 
 from dotenv import load_dotenv
 import os
@@ -30,6 +31,7 @@ def create_connection():
 def func(user_id):
     connection = create_connection()
     logger.info('Connected to DB')
+    global max_q
     with connection.cursor() as cursor:
         logger.info('Executing SQL Q')
         cursor.execute('SELECT `uses` FROM `gptusage` WHERE ID=%s', (user_id,))
@@ -47,19 +49,18 @@ def func(user_id):
             logger.info('got data. Writing it to data')
 
         usage = data['uses']
-        print(usage)
-        if usage > 10:
-            raise ValueError(f'Пользователь с ID {user_id} превысил лимит использования.')
+        
+
+        if usage >= 100:
+            connection.commit()
+            connection.close()
+            return False
         else:
             usage = usage + 1
-            print('should make', usage)
             cursor.execute('UPDATE `gptusage` SET `uses` = %s WHERE id=%s;', (usage, user_id))
         connection.commit()
-        #     # Если usage больше 10, выдаем ошибку
-        #     raise ValueError(f'Пользователь с ID {user_id} превысил лимит использования.')
-        # else:
-        #     logger.info(f'Пользователь с ID {user_id} имеет {usage} использований.')
 
     connection.close()
+    return True
 
-func(3)
+print(func(4))
